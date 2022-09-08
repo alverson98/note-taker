@@ -1,7 +1,9 @@
-// Imports
+// Dependencies
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+//unique id package
+const getUid = require("get-uid");
 
 // Declaring server port
 const PORT = 3001;
@@ -11,31 +13,52 @@ const app = express();
 
 //Middleware
 app.use(express.json());
-
-//For landing page
 app.use(express.static("public"));
 
-//HTML routes:
+//HTML routes -
 //Route for landing page
 app.get("*", (req, res) => {
-  //  get * index.html
+  res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
 //Route for notes page
 app.get("/notes", (req, res) => {
-  // get notes/ should return the notes.html
+  res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
-//API routes:
+//API routes -
 //Getting all notes
 app.get("/api/notes", (req, res) => {
-  // get /api/notes should read the db.json file and return all saved notes as JSON
+  res.sendFile(path.join(__dirname, "/db.db.json"));
 });
 
-//Posting new note
+//Adding new note
 app.post("/api/notes", (req, res) => {
-  //  post /api/notes -->receive new note & add to db.json file, return new note to the client (EACH NEED A UNIQUE ID)
+  fs.readFile("db/db.json", "utf-8", (err, noteData) => {
+    if (err) {
+      console.error(err);
+    } else {
+      const parsedNoteData = JSON.parse(noteData);
+      let notes = req.body;
+
+      //Assigning id property to each note object
+      notes.id = getUid();
+
+      parsedNoteData.push(notes);
+
+      fs.writeFile("db/db.json", JSON.stringify(parsedNoteData), (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.info("Successfully added new note");
+        }
+      });
+    }
+    res.sendFile(path.join(__dirname, "/db/db.json"));
+  });
 });
+
+//BONUS delete note
 
 //Listening to port
 app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
