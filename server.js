@@ -39,17 +39,18 @@ app.post("/api/notes", (req, res) => {
       console.error(err);
     } else {
       const parsedNoteData = JSON.parse(noteData);
-      let notes = req.body;
+      let newNote = req.body;
 
-      //Assigning id property to each note object
-      notes.id = getUid();
+      //Assigning id property to each note object & using getUid() to provide randomly generated id
+      newNote.id = getUid();
 
-      parsedNoteData.push(notes);
+      parsedNoteData.push(newNote);
 
       fs.writeFile("db/db.json", JSON.stringify(parsedNoteData), (err) => {
         if (err) {
           console.error(err);
         } else {
+          res.json(newNote);
           console.info("Successfully added new note");
         }
       });
@@ -58,7 +59,26 @@ app.post("/api/notes", (req, res) => {
   });
 });
 
-//BONUS delete note
+//BONUS - delete note
+app.delete("/api/notes/:id", "utf-8", (req, res) => {
+  fs.readFile("db/db.json", "utf-8", (err, noteData) => {
+    const parsedNoteData = JSON.parse(noteData);
+    //filtering through to find notes that do NOT match the id of the note that is being deleted
+    const remainingNotes = parsedNoteData.filter(
+      (note) => parseInt(note.id) != parseInt(req.params.id)
+    );
+
+    // Putting the notes that were not deleted into the db
+    fs.writeFile("db/db.json", JSON.stringify(remainingNotes), (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.info("Note was deleted.");
+      }
+    });
+    res.sendFile(path.join(__dirname, "db/db.json"));
+  });
+});
 
 //Listening to port
 app.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));
