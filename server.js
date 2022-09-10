@@ -6,7 +6,7 @@ const fs = require("fs");
 const getUid = require("get-uid");
 
 // Declaring server port
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Express instance
 const app = express();
@@ -60,7 +60,7 @@ app.post("/api/notes", (req, res) => {
 });
 
 //BONUS - delete note
-app.delete("/api/notes/:id", "utf-8", (req, res) => {
+app.delete("/api/notes/:id", (req, res) => {
   fs.readFile("db/db.json", "utf-8", (err, noteData) => {
     const parsedNoteData = JSON.parse(noteData);
     //filtering through to find notes that do NOT match the id of the note that is being deleted
