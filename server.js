@@ -13,11 +13,12 @@ const app = express();
 
 //Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 //HTML routes -
 //Route for landing page
-app.get("*", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
@@ -29,7 +30,7 @@ app.get("/notes", (req, res) => {
 //API routes -
 //Getting all notes
 app.get("/api/notes", (req, res) => {
-  res.sendFile(path.join(__dirname, "/db.db.json"));
+  res.sendFile(path.join(__dirname, "/db/db.json"));
 });
 
 //Adding new note
